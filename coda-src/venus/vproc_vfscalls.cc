@@ -47,7 +47,7 @@ listed in the file CREDITS.
  *
  *
  *    ToDo:
- *        1. Decide whether or not data is needed in the following 
+ *        1. Decide whether or not data is needed in the following
  *           cases (under all COP modes):
  *          - object have its attributes set
  *          - target object of a hard link
@@ -172,7 +172,7 @@ FreeLocks:
 
 void vproc::open(struct venus_cnode *cp, int flags)
 {
-    LOG(1, ("vproc::open: fid = %s , flags = %x\n", 
+    LOG(1, ("vproc::open: fid = %s , flags = %x\n",
 	    FID_(&cp->c_fid), flags));
 
     /* Expand the flags argument into some useful predicates. */
@@ -193,9 +193,9 @@ void vproc::open(struct venus_cnode *cp, int flags)
 	u.u_error = FSDB->Get(&f, &cp->c_fid, u.u_uid, RC_DATA);
 	if (u.u_error) goto FreeLocks;
 
-	if (exclp) { 
-		u.u_error = EEXIST; 
-		goto FreeLocks; 
+	if (exclp) {
+		u.u_error = EEXIST;
+		goto FreeLocks;
 	}
 
 	/* Verify that we have the necessary permission. */
@@ -209,10 +209,10 @@ void vproc::open(struct venus_cnode *cp, int flags)
 
 	    /* Special modes to pass:
                 Truncating requires write permission.
-		  Newly created stuff is writeable if parent allows it, 
+		  Newly created stuff is writeable if parent allows it,
                    modebits are ignored for new files: C_A_C_OK
 	         Otherwise, either write or insert suffices (to support
-                   insert only directories). 
+                   insert only directories).
 	    */
 	    int rights = truncp ? PRSFS_WRITE : (PRSFS_WRITE | PRSFS_INSERT);
 	    int modes = createp ? C_A_C_OK : C_A_W_OK;
@@ -238,7 +238,7 @@ FreeLocks:
 }
 
 
-void vproc::close(struct venus_cnode *cp, int flags) 
+void vproc::close(struct venus_cnode *cp, int flags)
 {
     LOG(1, ("vproc::close: fid = %s, flags = %x\n",
 	    FID_(&cp->c_fid), flags));
@@ -257,13 +257,13 @@ void vproc::close(struct venus_cnode *cp, int flags)
      * if you are in the DYING state and you have an active reference to
      * the file (since you cannot fetch and you cannot garbage collect).
      * We're reasonably confident that closing an object without having
-     * the DATA causes no problems; however, we'll leave a zero-level 
-     * log statement in as evidence to the contrary... (mre:6/14/94) 
+     * the DATA causes no problems; however, we'll leave a zero-level
+     * log statement in as evidence to the contrary... (mre:6/14/94)
      */
     u.u_error = FSDB->Get(&f, &cp->c_fid, u.u_uid, RC_STATUS);
     if (u.u_error) goto FreeLocks;
 
-    if (!DYING(f) && !HAVEALLDATA(f)) 
+    if (!DYING(f) && !HAVEALLDATA(f))
 	LOG(0, ("vproc::close: Don't have DATA and not DYING! (fid = %s, flags = %x)\n", FID_(&cp->c_fid), flags));
 
     /* Do the operation. */
@@ -282,7 +282,7 @@ Exit:
 
 
 void vproc::ioctl(struct venus_cnode *cp, unsigned char nr,
-		   struct ViceIoctl *data, int flags) 
+		   struct ViceIoctl *data, int flags)
 {
     LOG(1, ("vproc::ioctl(%d): fid = %s, com = %s\n",
 	     u.u_uid, FID_(&cp->c_fid), IoctlOpStr(nr)));
@@ -296,7 +296,7 @@ void vproc::ioctl(struct venus_cnode *cp, unsigned char nr,
 }
 
 
-void vproc::getattr(struct venus_cnode *cp, struct coda_vattr *vap) 
+void vproc::getattr(struct venus_cnode *cp, struct coda_vattr *vap)
 {
     LOG(1, ("vproc::getattr: fid = %s\n", FID_(&cp->c_fid)));
 
@@ -374,10 +374,10 @@ void vproc::setattr(struct venus_cnode *cp, struct coda_vattr *vap) {
     fsobj *f = 0;
     int rcrights;
 
-    /* 
-     * BSD44 supports chflags, which sets the va_flags field of 
+    /*
+     * BSD44 supports chflags, which sets the va_flags field of
      * the vattr.  Coda doesn't support these flags, but we will
-     * allow calls that clear the field.  
+     * allow calls that clear the field.
      */
     /* Cannot set these attributes. */
     if (vap->va_fileid != VA_IGNORE_ID ||
@@ -387,8 +387,8 @@ void vproc::setattr(struct venus_cnode *cp, struct coda_vattr *vap) {
 	(vap->va_flags != VA_IGNORE_FLAGS && vap->va_flags != 0) ||
 	vap->va_bytes != VA_IGNORE_STORAGE)
     {
-	    u.u_error = EINVAL; 
-	    return; 
+	    u.u_error = EINVAL;
+	    return;
     }
 
     /* Should be setting at least one of these. */
@@ -483,12 +483,12 @@ void vproc::setattr(struct venus_cnode *cp, struct coda_vattr *vap) {
 
 	    if (vap->va_size != VA_IGNORE_SIZE) {
 		if (!f->IsFile()) {
-		    u.u_error = EISDIR; 
-		    goto FreeLocks; 
+		    u.u_error = EISDIR;
+		    goto FreeLocks;
 		}
 
 		u.u_error = f->Access(PRSFS_WRITE, C_A_W_OK, u.u_uid);
-		if (u.u_error) 
+		if (u.u_error)
 		    goto FreeLocks;
 	    }
 
@@ -502,12 +502,12 @@ void vproc::setattr(struct venus_cnode *cp, struct coda_vattr *vap) {
 	/* Do the operation. */
 	f->PromoteLock();
 	u.u_error = f->SetAttr(vap, u.u_uid);
-	
+
 FreeLocks:
 	FSDB->Put(&f);
 	int retry_call = 0;
 	End_VFS(&retry_call);
-	if (!retry_call) 
+	if (!retry_call)
 		break;
     }
 
@@ -518,7 +518,7 @@ FreeLocks:
 }
 
 
-void vproc::access(struct venus_cnode *cp, int mode) 
+void vproc::access(struct venus_cnode *cp, int mode)
 {
 
     LOG(1, ("vproc::access: fid = %s, mode = %#o\n", FID_(&cp->c_fid), mode));
@@ -770,7 +770,7 @@ FreeLocks:
 }
 
 
-void vproc::remove(struct venus_cnode *dcp, char *name) 
+void vproc::remove(struct venus_cnode *dcp, char *name)
 {
 
     LOG(1, ("vproc::remove: fid = %s, name = %s\n",
@@ -826,8 +826,8 @@ FreeLocks:
 }
 
 
-void vproc::link(struct venus_cnode *scp, struct venus_cnode *dcp, 
-		 char *toname) 
+void vproc::link(struct venus_cnode *scp, struct venus_cnode *dcp,
+		 char *toname)
 {
 
     LOG(1, ("vproc::link: fid = %s, td_fid = %s, toname = %s\n",
@@ -869,7 +869,7 @@ void vproc::link(struct venus_cnode *scp, struct venus_cnode *dcp,
 	 * fsobj and block a data fetch until the CML has been reintegrated. To avoid
 	 * having an inaccessible object we have to make sure to fetch the
 	 * data as well. */
-  src_rcrights = RC_STATUS;
+        int src_rcrights = RC_STATUS;
 	volent *v = 0;
 	u.u_error = VDB->Get(&v, MakeVolid(&scp->c_fid));
 	if (u.u_error) goto FreeLocks;
@@ -937,7 +937,7 @@ FreeLocks:
 
 
 void vproc::rename(struct venus_cnode *spcp, char *name,
-		   struct venus_cnode *tpcp, char *toname) 
+		   struct venus_cnode *tpcp, char *toname)
 {
 
     LOG(1, ("vproc::rename: fid = %s, td_fid = %s, name = %s, toname = %s\n",
@@ -998,14 +998,14 @@ void vproc::rename(struct venus_cnode *spcp, char *name,
 	/* Acquire the source and target (if it exists). */
 	/* The locking protocol is violated here! -JJK */
 	/* We need data for directories! */
-	/* 
+	/*
 	 * If the target exists, this thread must look up (and in the
 	 * process read-lock) both child objects.  To avoid deadlock, this
 	 * should be done in fid-order, unfortunately we do not know
 	 * the fids of the objects yet.  We have to look them up to find
-	 * out.  We get away with avoiding deadlock with the reintegrator 
+	 * out.  We get away with avoiding deadlock with the reintegrator
 	 * thread here because it only read-locks leaf nodes, so these
-	 * lookups will go through.  
+	 * lookups will go through.
 	 */
 	{
 	    fsobj *f = (SameParent ? t_parent_fso : s_parent_fso);
@@ -1123,9 +1123,9 @@ void vproc::rename(struct venus_cnode *spcp, char *name,
 	t_parent_fso->PromoteLock();
 	if (!SameParent) s_parent_fso->PromoteLock();
 
-	/* 
+	/*
 	 * To avoid potential deadlock with the reintegrator thread,
-	 * we must promote the locks of the child objects in fid 
+	 * we must promote the locks of the child objects in fid
 	 * order if the target exists.
 	 */
 	if (!TargetExists)
@@ -1163,7 +1163,7 @@ FreeLocks:
 
 
 void vproc::mkdir(struct venus_cnode *dcp, char *name,
-		  struct coda_vattr *vap, struct venus_cnode *cp) 
+		  struct coda_vattr *vap, struct venus_cnode *cp)
 {
 
     LOG(1, ("vproc::mkdir: fid = %s, name = %s\n", FID_(&dcp->c_fid), name));
@@ -1222,7 +1222,7 @@ FreeLocks:
 }
 
 
-void vproc::rmdir(struct venus_cnode *dcp, char *name) 
+void vproc::rmdir(struct venus_cnode *dcp, char *name)
 {
 
     LOG(1, ("vproc::rmdir: fid = %s, name = %s\n", FID_(&dcp->c_fid), name));
@@ -1298,7 +1298,7 @@ FreeLocks:
 
 
 void vproc::symlink(struct venus_cnode *dcp, char *contents,
-		    struct coda_vattr *vap, char *name) 
+		    struct coda_vattr *vap, char *name)
 {
 
     LOG(1, ("vproc::symlink: fid = (%s), contents = %s, name = %s\n",
@@ -1356,7 +1356,7 @@ FreeLocks:
 }
 
 
-void vproc::readlink(struct venus_cnode *cp, struct coda_string *string) 
+void vproc::readlink(struct venus_cnode *cp, struct coda_string *string)
 {
     LOG(1, ("vproc::readlink: fid = %s\n", FID_(&cp->c_fid)));
 
@@ -1396,7 +1396,7 @@ void vproc::readlink(struct venus_cnode *cp, struct coda_string *string)
 
 	/* Retrieve the link contents from the cache. */
 	u.u_error = f->Readlink(buf, len-1, &string->cs_len, u.u_uid);
-	if (u.u_error) 
+	if (u.u_error)
             goto FreeLocks;
 
 FreeLocks:
@@ -1422,7 +1422,7 @@ FreeLocks:
     }
 }
 
-void vproc::fsync(struct venus_cnode *cp) 
+void vproc::fsync(struct venus_cnode *cp)
 {
 
     LOG(1, ("vproc::fsync: fid = %s\n", FID_(&cp->c_fid)));
@@ -1437,7 +1437,7 @@ void vproc::fsync(struct venus_cnode *cp)
 	u.u_error = FSDB->Get(&f, &cp->c_fid, u.u_uid, RC_STATUS);
 	if (u.u_error) goto FreeLocks;
 
-	/* 
+	/*
 	 * what we want: if the file is open for write, sync the
 	 * changes to it and flush associated RVM updates.
 	 * below is the heavy handed version.

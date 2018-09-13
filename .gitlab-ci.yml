@@ -1,0 +1,45 @@
+image: registry.cmusatyalab.org/coda/coda-packaging/coda-build
+
+variables:
+  DOCKER_DRIVER: overlay2
+
+before_script:
+  - mkdir -p ccache
+  - export CCACHE_BASEDIR=${PWD}
+  - export CCACHE_DIR=${PWD}/ccache
+  - export PATH=/usr/lib/ccache:${PATH}
+
+cache:
+  paths:
+    - ccache/
+
+sources:
+  stage: build
+  script:
+    - tools/version_check.sh
+    - ./bootstrap.sh --fix-versions
+    - ./configure --prefix=/usr --with-lua
+    - make distcheck dist-xz
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - "coda-*.tar*"
+
+test_pages:
+  stage: build
+  script:
+    - doxygen doxygen/Doxyfile
+  except:
+    - master
+
+pages:
+  stage: build
+  script:
+    - doxygen doxygen/Doxyfile
+    - mv doxygen/html/ public/
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - public
+  only:
+    - master
