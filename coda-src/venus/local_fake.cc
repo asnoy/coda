@@ -3,7 +3,7 @@
                            Coda File System
                               Release 6
 
-          Copyright (c) 1987-2003 Carnegie Mellon University
+          Copyright (c) 1987-2018 Carnegie Mellon University
                   Additional copyrights listed below
 
 This  code  is  distributed "AS IS" without warranty of any kind under
@@ -269,9 +269,9 @@ void fsobj::SetMtLinkContents(VenusFid *fid)
     realmname = realm->Name();
 
     stat.Length = 29 + strlen(realmname);
-    data.symlink = (char *)rvmlib_rec_malloc(stat.Length);
-    rvmlib_set_range(data.symlink, stat.Length);
-    sprintf(data.symlink, "@%08x.%08x.%08x@%s",
+    data.symlink = (char *)rvmlib_rec_malloc(stat.Length+1);
+    rvmlib_set_range(data.symlink, stat.Length+1);
+    sprintf(data.symlink, "@%08x.%08x.%08x@%s.",
 	    fid->Volume, fid->Vnode, fid->Unique, realmname);
     realm->PutRef();
 }

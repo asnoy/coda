@@ -3,7 +3,7 @@
                            Coda File System
                               Release 6
 
-          Copyright (c) 1987-2003 Carnegie Mellon University
+          Copyright (c) 1987-2018 Carnegie Mellon University
                   Additional copyrights listed below
 
 This  code  is  distributed "AS IS" without warranty of any kind under
@@ -1414,11 +1414,11 @@ FreeLocks:
 	/* Make a "fake" name for the inconsistent object. */
 	Realm *realm = REALMDB->GetRealm(cp->c_fid.Realm);
 	CODA_ASSERT(realm);
-	len = snprintf(buf, len, "@%08x.%08x.%08x@%s", cp->c_fid.Volume,
+	len = snprintf(buf, len, "@%08x.%08x.%08x@%s.", cp->c_fid.Volume,
 		       cp->c_fid.Vnode, cp->c_fid.Unique, realm->Name());
 	string->cs_len = 29 + strlen(realm->Name());
 	realm->PutRef();
-	CODA_ASSERT((len+1) == string->cs_len);
+	CODA_ASSERT(len == string->cs_len);
     }
 }
 
@@ -1462,3 +1462,84 @@ FreeLocks:
     }
 }
 
+void vproc::read(struct venus_cnode * node, uint64_t pos, int64_t count)
+{
+    LOG(1, ("vproc::read: fid = %s, pos = %d, count = %d\n", FID_(&node->c_fid), pos, count));
+
+    fsobj *f = NULL;
+
+    /* Get the object. */
+    f = FSDB->Find(&node->c_fid);
+    if (!f) {
+        u.u_error = EIO;
+        return;
+    }
+
+    if (pos >= f->Size()) {
+        u.u_error = EIO;
+        return;
+    }
+
+}
+
+void vproc::write(struct venus_cnode * node, uint64_t pos, int64_t count)
+{
+    LOG(1, ("vproc::write: fid = %s, pos = %d, count = %d\n", FID_(&node->c_fid), pos, count));
+
+    fsobj *f = NULL;
+
+    /* Get the object. */
+    f = FSDB->Find(&node->c_fid);
+    if (!f) {
+        u.u_error = EIO;
+        return;
+    }
+
+    if (pos >= f->Size()) {
+        u.u_error = EIO;
+        return;
+    }
+
+}
+
+void vproc::read_finish(struct venus_cnode * node, uint64_t pos, int64_t count)
+{
+    LOG(1, ("vproc::read_finish: fid = %s, pos = %d, count = %d\n",
+            FID_(&node->c_fid), pos, count));
+
+    fsobj *f = NULL;
+
+    /* Get the object. */
+    f = FSDB->Find(&node->c_fid);
+    if (!f) {
+        u.u_error = EIO;
+        return;
+    }
+
+    if (pos >= f->Size()) {
+        u.u_error = EIO;
+        return;
+    }
+
+}
+
+void vproc::write_finish(struct venus_cnode * node, uint64_t pos, int64_t count)
+{
+    LOG(1, ("vproc::write_finish: fid = %s, pos = %d, count = %d\n",
+            FID_(&node->c_fid), pos, count));
+
+    fsobj *f = NULL;
+
+    /* Get the object. */
+    f = FSDB->Find(&node->c_fid);
+    if (!f) {
+        u.u_error = EIO;
+        return;
+    }
+
+    if (pos >= f->Size()) {
+        u.u_error = EIO;
+        return;
+    }
+
+}

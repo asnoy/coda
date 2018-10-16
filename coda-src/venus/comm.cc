@@ -3,7 +3,7 @@
                            Coda File System
                               Release 6
 
-          Copyright (c) 1987-2016 Carnegie Mellon University
+          Copyright (c) 1987-2018 Carnegie Mellon University
                   Additional copyrights listed below
 
 This  code  is  distributed "AS IS" without warranty of any kind under
@@ -904,6 +904,7 @@ srvent::srvent(struct in_addr *Host, RealmId realm)
     bw = INIT_BW;
     lastobs.tv_sec = lastobs.tv_usec = 0;
     refcount = 1;
+    fetchpartial_support = 0;
 
 #ifdef	VENUSDEBUG
     allocs++;
@@ -1251,4 +1252,3 @@ int FailReconnect(int nservers, struct in_addr *hostids)
     Fail_SendPredicate = Fail_RecvPredicate = NULL;
     return 0;
 }
-

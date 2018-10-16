@@ -3,7 +3,7 @@
                            Coda File System
                               Release 6
 
-          Copyright (c) 1987-2016 Carnegie Mellon University
+          Copyright (c) 1987-2018 Carnegie Mellon University
                   Additional copyrights listed below
 
 This  code  is  distributed "AS IS" without warranty of any kind under
@@ -131,7 +131,7 @@ static const char *VFSOpsNameTemplate[NVFSOPS] = {
     "Store",
     "Release",
     "No-Op",
-    "No-Op",
+    "AccessIntent",
     "No-Op"
 };
 

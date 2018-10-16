@@ -3,7 +3,7 @@
                            Coda File System
                               Release 6
 
-          Copyright (c) 1987-2008 Carnegie Mellon University
+          Copyright (c) 1987-2018 Carnegie Mellon University
                   Additional copyrights listed below
 
 This  code  is  distributed "AS IS" without warranty of any kind under
@@ -33,6 +33,7 @@ listed in the file CREDITS.
 class fsdb;
 class fsobj;
 class fso_iterator;
+class connent;
 
 class cmlent;	    /* we have compiler troubles if volume.h is included! */
 
@@ -77,6 +78,7 @@ extern int global_kernfd;
 #include "comm.h"
 #include "hdb.h"
 #include "mariner.h"
+#include "realmdb.h"
 #include "venusrecov.h"
 #include "vproc.h"
 #include "venus.private.h"
@@ -281,6 +283,9 @@ class CacheFile {
     void Create(int newlength = 0);
     int Open(int flags);
     int Close(int fd);
+
+    FILE *FOpen(const char *mode);
+    int FClose(FILE *f);
 
     void Validate();
     void Reset();
@@ -537,7 +542,7 @@ class fsobj {
     void DiscardData();
 
     /* Fake object management. */
-    int Fakeify();
+    int Fakeify(uid_t uid);
     int IsFake() { return(flags.fake); }
     int IsFakeDir() { return(flags.fake && IsDir() && !IsMtPt()); }
     int IsFakeMtPt() { return(flags.fake && IsMtPt()); }
@@ -615,10 +620,15 @@ class fsobj {
 			     char *, unsigned short, int, int prepend=0);
     int GetContainerFD(void);
     int LookAside(void);
+    int FetchFileRPC(connent * con, ViceStatus * status,
+                     unsigned long primaryHost, uint64_t offset, int64_t len,
+                     RPC2_CountedBS * PiggyBS, SE_Descriptor * sed);
+    int OpenPioctlFile(void);
 
   public:
     /* The public CFS interface (Vice portion). */
     int Fetch(uid_t);
+    int Fetch(uid_t uid, uint64_t pos, int64_t count);
     int GetAttr(uid_t, RPC2_BoundedBS * =0);
     int GetACL(RPC2_BoundedBS *, uid_t);
     int Store(unsigned long, Date_t, uid_t);
@@ -673,6 +683,11 @@ class fsobj {
                                                         /* uncovered mount point */
     int IsVirgin();        /* file which has been created, but not yet stored */
     int IsBackFetching();  /* fso involved in an ongoing reintegration */
+    int IsPioctlFile() { /* Test for pioctl object. */
+     return (fid.Realm == LocalRealm->Id() &&
+             fid.Volume == FakeRootVolumeId &&
+             fid.Vnode == 0xfffffffa);
+    }
     int SetLastResolved(long t) { lastresolved = t; return(0); }
     int  MakeShadow();
     void RemoveShadow();

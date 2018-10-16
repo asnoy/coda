@@ -23,8 +23,8 @@
 #realmtab=/etc/coda/realms
 
 #
-# What should the size of the local cache be. If this is not specified or 
-# `0' the default value of 2048 or 2MB is chosen. Supported units are KB, 
+# What should the size of the local cache be. If this is not specified or
+# `0' the default value of 2048 or 2MB is chosen. Supported units are KB,
 # MB, GB, and TB.
 # Minimum value is 2048 or 2MB.
 #
@@ -306,3 +306,15 @@ mapprivate=1
 # Only use tcp tunnels for client-server communication (depends on codatunnel)
 #
 #onlytcp=0
+
+#
+# Enable or disable automatic mounting of the Coda File System on /coda
+# using the Coda specific kernel implementation
+#
+#codafs=1
+
+#
+# Expose the Coda File System through a Plan9 File System server over
+# the UNIX or TCP port that is configured as the mariner port.
+#
+#plan9server=0

@@ -3,7 +3,7 @@
                            Coda File System
                               Release 6
 
-          Copyright (c) 1987-2016 Carnegie Mellon University
+          Copyright (c) 1987-2018 Carnegie Mellon University
                   Additional copyrights listed below
 
 This  code  is  distributed "AS IS" without warranty of any kind under
@@ -237,6 +237,46 @@ class vproc : public olink {
     void readlink(struct venus_cnode *, struct coda_string *);
     void fsync(struct venus_cnode *);
 
+    /**
+     * Read file operation
+     *
+     * @param node     Venus cnode pointer holding file's metadata
+     * @param pos      Offset within the file
+     * @param count    Number of bytes to be read from the file
+     *
+     */
+    void read(struct venus_cnode * node, uint64_t pos, int64_t count);
+
+    /**
+     * Write file operation
+     *
+     * @param node     Venus cnode pointer holding file's metadata
+     * @param pos      Offset within the file
+     * @param count    Number of bytes to be written to the file
+     *
+     */
+    void write(struct venus_cnode * node, uint64_t pos, int64_t count);
+
+    /**
+     * Signal the end of a synchronous read file operation
+     *
+     * @param node     Venus cnode pointer holding file's metadata
+     * @param pos      Offset within the file
+     * @param count    Number of bytes read from the file
+     *
+     */
+    void read_finish(struct venus_cnode * node, uint64_t pos, int64_t count);
+
+    /**
+     * Signal the end of a synchronous write file operation
+     *
+     * @param node     Venus cnode pointer holding file's metadata
+     * @param pos      Offset within the file
+     * @param count    Number of bytes written to the file
+     *
+     */
+    void write_finish(struct venus_cnode * node, uint64_t pos, int64_t count);
+
     /* Pathname translation. */
     int namev(char *, int, struct venus_cnode *);
     void GetPath(VenusFid *, char *, int *, int =1);
@@ -341,4 +381,3 @@ struct venus_cnode {
 #define VA_IGNORE_FLAGS		((u_long)-1)
 
 #endif /* _VENUS_PROC_H_ */
-
